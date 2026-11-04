@@ -31,6 +31,16 @@ function Auth({ onAuth }) {
   );
 }
 
+const ICONS = {
+  today: 'M8 2v3M16 2v3M3 9h18M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z',
+  topics: 'M4 6h16M4 12h16M4 18h10',
+  insights: 'M4 20V10M10 20V4M16 20v-7M22 20H2'
+};
+const TITLES = { today: 'Today', topics: 'All topics', insights: 'Insights' };
+const Icon = ({ d }) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
+);
+
 export default function App() {
   const [user, setUser] = useState(undefined);
   const [tab, setTab] = useState('today');
@@ -61,33 +71,45 @@ export default function App() {
   };
 
   const shared = { tick, onChange: refresh, onEdit: setEditing };
-  return (
-    <div className="wrap">
-      <header>
-        <h1>Revise</h1>
-        <div className="acts">
-          <button className="b" onClick={() => setEditing({})}>Add topic</button>
-          <button className="b g" onClick={backup}>Backup</button>
-          <label className="b g filebtn">Restore<input type="file" accept=".json" hidden onChange={restore} /></label>
-          <button className="b g" onClick={() => setDark(!dark)}>{dark ? 'Light' : 'Dark'}</button>
-          <button className="b g" onClick={logout}>Sign out</button>
-        </div>
-      </header>
+  const go = k => { setReviewing(null); setTab(k); refresh(); };
+  const dateText = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
 
-      {reviewing ? (
-        <Review items={reviewing} onDone={() => { setReviewing(null); refresh(); }} />
-      ) : (
-        <>
-          <nav>
-            {[['today', 'Today'], ['topics', 'All topics'], ['insights', 'Insights']].map(([k, l]) => (
-              <button key={k} className={k === tab ? 'on' : ''} onClick={() => setTab(k)}>{l}</button>
-            ))}
-          </nav>
-          {tab === 'today' && <Today user={user} setUser={setUser} onReview={setReviewing} {...shared} />}
-          {tab === 'topics' && <Topics {...shared} />}
-          {tab === 'insights' && <Insights tick={tick} />}
-        </>
-      )}
+  return (
+    <div className="app">
+      <aside className="side">
+        <div className="brand"><span className="logo">R</span>Revise</div>
+        <nav>
+          {Object.keys(TITLES).map(k => (
+            <button key={k} className={k === tab && !reviewing ? 'on' : ''} onClick={() => go(k)}>
+              <Icon d={ICONS[k]} /><span>{TITLES[k]}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="side-actions">
+          <button className="b" onClick={() => setEditing({})}>+ Add topic</button>
+          <button className="side-link" onClick={backup}>Backup</button>
+          <label className="side-link">Restore<input type="file" accept=".json" hidden onChange={restore} /></label>
+          <button className="side-link" onClick={() => setDark(!dark)}>{dark ? 'Light mode' : 'Dark mode'}</button>
+          <button className="side-link" onClick={logout}>Sign out</button>
+          <small className="side-user">{user.email}</small>
+        </div>
+      </aside>
+
+      <main className="main">
+        <div className="pagehead">
+          <h1>{reviewing ? 'Review session' : TITLES[tab]}</h1>
+          <span className="mute">{dateText}</span>
+        </div>
+        {reviewing ? (
+          <Review items={reviewing} onDone={() => { setReviewing(null); refresh(); }} />
+        ) : (
+          <>
+            {tab === 'today' && <Today user={user} setUser={setUser} onReview={setReviewing} {...shared} />}
+            {tab === 'topics' && <Topics {...shared} />}
+            {tab === 'insights' && <Insights tick={tick} />}
+          </>
+        )}
+      </main>
 
       {editing && <TopicForm topic={editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); refresh(); }} />}
     </div>

@@ -39,7 +39,7 @@ export function Today({ user, setUser, tick, onChange, onEdit, onReview }) {
         <h3>Due today ({items.length})</h3>
         {items.length > 0 && <button className="b" onClick={() => onReview(items)}>Start review session</button>}
       </div>
-      {items.map(t => <Card key={t._id} t={t} onOpen={setOpen} />)}
+      <div className="grid">{items.map(t => <Card key={t._id} t={t} onOpen={setOpen} />)}</div>
       {due && !items.length && <p className="mute">Nothing due. Add a topic you studied recently, or check Insights for what is coming.</p>}
       {open && <TopicView t={open} onClose={() => setOpen(null)} onChange={onChange} onEdit={t => { setOpen(null); onEdit(t); }} />}
     </>
@@ -74,7 +74,7 @@ export default function Topics({ tick, onChange, onEdit }) {
         </select>
       </div>
       {err && <p className="over" role="alert">{err}</p>}
-      {data?.items.map(t => <Card key={t._id} t={t} onOpen={setOpen} />)}
+      <div className="grid">{data?.items.map(t => <Card key={t._id} t={t} onOpen={setOpen} />)}</div>
       {data && !data.items.length && <p className="mute">No topics match. Try a different search, or add your first topic.</p>}
       {data?.pages > 1 && (
         <div className="acts">

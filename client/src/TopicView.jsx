@@ -21,7 +21,7 @@ export function Code({ c }) {
   );
 }
 
-const thumb = url => url.replace('/upload/', '/upload/w_400,h_260,c_fill,q_auto,f_auto/');
+export const thumb = url => url.replace('/upload/', '/upload/w_400,h_260,c_fill,q_auto,f_auto/');
 
 export function Gallery({ images = [], onRemove }) {
   const [big, setBig] = useState(null);

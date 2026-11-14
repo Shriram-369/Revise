@@ -102,3 +102,23 @@ dialog::backdrop{background:rgba(8,10,30,.6)}
 .uploader .filebtn{margin:0}
 .pv{display:block;width:100%;height:110px;object-fit:cover;border:1px solid var(--line);border-radius:12px}
 .cap{margin-top:4px;padding:5px 8px;font-size:12px}
+
+/* focus timer */
+.timer{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border-radius:18px;padding:26px 22px;text-align:center;box-shadow:var(--shadow)}
+.timer.short,.timer.long{background:linear-gradient(135deg,#1f9d63,#2bb6a3)}
+.timer .clock{font-size:clamp(56px,14vw,96px);font-weight:800;letter-spacing:-2px;line-height:1.1;font-variant-numeric:tabular-nums}
+.timer .bar{background:rgba(255,255,255,.28);height:10px;max-width:420px;margin:12px auto 18px}
+.timer .bar i{background:#fff}
+.timer .acts{justify-content:center}
+.timer .b{background:#fff;color:#151a2d;border-color:#fff}
+.timer .b.g{background:transparent;color:#fff;border-color:rgba(255,255,255,.6)}
+.set{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:10px}
+.mini{display:flex;justify-content:space-between;align-items:center;margin:10px 4px;padding:9px 12px;border:0;border-radius:10px;background:rgba(255,255,255,.12);color:#fff;font:inherit;font-size:13px;cursor:pointer}
+.mini b{font-size:18px;font-variant-numeric:tabular-nums}
+.bars{display:flex;align-items:flex-end;gap:6px;height:130px;margin-top:14px;padding:14px 14px 6px;background:var(--s);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.bars>div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px}
+.bars i{display:block;width:100%;background:var(--ac);border-radius:4px 4px 0 0}
+.bars small{font-size:10px;color:var(--mute)}
+.srow{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:8px 0}
+.srow input{width:130px}
+.srow input[placeholder]{width:auto;flex:1}

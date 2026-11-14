@@ -10,6 +10,7 @@ import mongoose from 'mongoose';
 import env from './config.js';
 import authRoutes from './routes/auth.js';
 import topicRoutes from './routes/topics.js';
+import sessionRoutes from './routes/sessions.js';
 import { requireAuth } from './middleware/auth.js';
 import { notFound, errorHandler } from './middleware/error.js';
 
@@ -21,6 +22,7 @@ if (env.NODE_ENV !== 'test') app.use(morgan(env.NODE_ENV === 'production' ? 'com
 app.get('/healthz', (_req, res) => res.json({ ok: mongoose.connection.readyState === 1 }));
 app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, limit: 100, standardHeaders: true, legacyHeaders: false }), authRoutes);
 app.use('/api/topics', requireAuth, topicRoutes);
+app.use('/api/sessions', requireAuth, sessionRoutes);
 app.use('/api', notFound);
 
 if (env.NODE_ENV === 'production') {

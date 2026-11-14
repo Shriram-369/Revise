@@ -11,6 +11,7 @@ const topic = new Schema({
   firstStudied: String,
   code: [{ title: String, lang: String, body: String }],
   cards: [{ q: String, a: String }],
+  images: [{ url: String, publicId: String, caption: String }],
   // SM-2 scheduling state
   ease: { type: Number, default: 2.5 },
   interval: { type: Number, default: 0 },

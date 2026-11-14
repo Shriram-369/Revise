@@ -40,3 +40,12 @@ revise-pro/
 Accounts, topics with notes/tags/links, code snippets with syntax highlighting, flashcards, SM-2 scheduling
 (Again/Hard/Good/Easy), keyboard-driven review sessions (Space, then 1-4), daily goal, streak, 12-week activity map,
 7-day workload, subject breakdown, search and filters with pagination, dark mode, JSON backup and restore.
+
+## Images (Cloudinary)
+1. Create a free account at cloudinary.com. In the dashboard, copy your **API environment variable**
+   (it looks like `cloudinary://<api_key>:<api_secret>@<cloud_name>`; make sure the real API secret is filled in).
+2. Add it as `CLOUDINARY_URL` in `server/.env` locally, and in Render's Environment tab when deployed.
+3. Open a topic and use **Add image** (or paste a screenshot). Images are stored in Cloudinary; MongoDB only keeps their links.
+
+Without `CLOUDINARY_URL` the app still works, and uploads show a "not configured" message.
+Backup files include image links but Restore does not re-attach images.

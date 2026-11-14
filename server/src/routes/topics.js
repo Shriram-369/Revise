@@ -1,7 +1,9 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { z } from 'zod';
 import Topic from '../models/Topic.js';
 import { asyncHandler, httpError } from '../middleware/error.js';
+import { cloudinaryReady, deleteImage, uploadImage } from '../utils/cloudinary.js';
 import { RATINGS, addDays, schedule } from '../utils/scheduler.js';
 
 const r = Router();
@@ -16,6 +18,11 @@ const body = z.object({
   firstStudied: date,
   code: z.array(z.object({ title: z.string().max(120).default(''), lang: z.string().max(30).default('plaintext'), body: z.string().min(1).max(20000) })).max(20).default([]),
   cards: z.array(z.object({ q: z.string().min(1).max(1000), a: z.string().max(4000).default('') })).max(50).default([])
+});
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+  fileFilter: (_req, file, cb) => (/^image\/(png|jpe?g|webp|gif)$/.test(file.mimetype) ? cb(null, true) : cb(httpError(400, 'Only JPG, PNG, WebP or GIF images are allowed')))
 });
 const own = req => ({ _id: req.params.id, user: req.userId });
 
@@ -93,8 +100,31 @@ r.post('/:id/revise', asyncHandler(async (req, res) => {
   res.json(await t.save());
 }));
 
+r.post('/:id/images', upload.single('image'), asyncHandler(async (req, res) => {
+  if (!cloudinaryReady) throw httpError(503, 'Image uploads are not configured on the server');
+  if (!req.file) throw httpError(400, 'Choose an image to upload');
+  const t = await Topic.findOne(own(req));
+  if (!t) throw httpError(404, 'Topic not found');
+  if (t.images.length >= 10) throw httpError(400, 'A topic can have up to 10 images');
+  const caption = z.string().max(200).parse(req.body.caption ?? '');
+  const up = await uploadImage(req.file.buffer, `revise/${req.userId}`);
+  t.images.push({ url: up.secure_url, publicId: up.public_id, caption });
+  res.status(201).json(await t.save());
+}));
+
+r.delete('/:id/images/:imageId', asyncHandler(async (req, res) => {
+  const t = await Topic.findOne(own(req));
+  const img = t?.images.id(req.params.imageId);
+  if (!img) throw httpError(404, 'Image not found');
+  await deleteImage(img.publicId);
+  img.deleteOne();
+  res.json(await t.save());
+}));
+
 r.delete('/:id', asyncHandler(async (req, res) => {
-  if (!(await Topic.findOneAndDelete(own(req)))) throw httpError(404, 'Topic not found');
+  const t = await Topic.findOneAndDelete(own(req));
+  if (!t) throw httpError(404, 'Topic not found');
+  await Promise.all(t.images.map(i => deleteImage(i.publicId)));
   res.json({ ok: true });
 }));
 

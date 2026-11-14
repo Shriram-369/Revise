@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 async function request(path, method = 'GET', body) {
   const res = await fetch('/api' + path, {
     method,
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
-    body: body && JSON.stringify(body)
+    headers: body && !(body instanceof FormData) ? { 'Content-Type': 'application/json' } : undefined,
+    body: body instanceof FormData ? body : body && JSON.stringify(body)
   });
   const data = await res.json().catch(() => null);
   if (!res.ok) throw Object.assign(new Error(data?.error || 'Request failed'), { status: res.status });

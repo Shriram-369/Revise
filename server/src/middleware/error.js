@@ -6,6 +6,7 @@ export const notFound = (_req, res) => res.status(404).json({ error: 'Not found'
 
 export const errorHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) return res.status(400).json({ error: err.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ') });
+  if (err.name === 'MulterError') return res.status(400).json({ error: err.code === 'LIMIT_FILE_SIZE' ? 'Image must be 5 MB or smaller' : err.message });
   if (err.name === 'CastError') return res.status(400).json({ error: 'Invalid id' });
   if (err.code === 11000) return res.status(409).json({ error: 'An account with this email already exists' });
   const status = err.status || 500;

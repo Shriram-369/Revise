@@ -82,7 +82,9 @@ export function useTimer(onSaved) {
     setT(IDLE);
   };
   const skip = () => setT(next(t, false));
-  return { cfg, setCfg, t, remaining, total, start, pause, resume, stop, skip, err };
+  // Restart the current phase from its full length, without saving anything.
+  const reset = () => setT({ ...IDLE, phase: t.phase, round: t.round });
+  return { cfg, setCfg, t, remaining, total, start, pause, resume, stop, skip, reset, err };
 }
 
 export function MiniClock({ timer, onOpen }) {
@@ -96,7 +98,7 @@ export function MiniClock({ timer, onOpen }) {
 }
 
 export default function Focus({ timer, tick }) {
-  const { cfg, setCfg, t, remaining, total, start, pause, resume, stop, skip, err } = timer;
+  const { cfg, setCfg, t, remaining, total, start, pause, resume, stop, skip, reset, err } = timer;
   const [n, setN] = useState(0);
   const [add, setAdd] = useState('');
   const [msg, setMsg] = useState('');
@@ -109,6 +111,11 @@ export default function Focus({ timer, tick }) {
   const commit = (k, v, min, max) => setCfg({ ...cfg, [k]: Math.min(max, Math.max(min, Math.round(+v) || min)) });
   const act = async fn => { setMsg(''); try { await fn(); setN(x => x + 1); } catch (x) { setMsg(x.message); } };
   const minutes = v => Math.round(+v);
+  const onReset = () => {
+    const mins = Math.floor((total - remaining) / 60000);
+    if (t.phase === 'focus' && mins >= 1 && !confirm(`Reset this round? The ${mins} min studied so far will not be saved. Use "Stop and save" to keep it.`)) return;
+    reset();
+  };
 
   return (
     <>
@@ -121,6 +128,7 @@ export default function Focus({ timer, tick }) {
           {running && <button className="b" onClick={pause}>Pause</button>}
           {paused && <button className="b" onClick={resume}>Resume</button>}
           {!idle && <button className="b g" onClick={stop}>{t.phase === 'focus' ? 'Stop and save' : 'Stop'}</button>}
+          {!idle && <button className="b g" onClick={onReset}>Reset</button>}
           {t.phase !== 'focus' && <button className="b g" onClick={skip}>Skip break</button>}
         </div>
       </div>
